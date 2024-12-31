@@ -38,20 +38,6 @@
       "metadata": {
         "description": "Regione in cui distribuire le risorse."
       }
-    },
-    "containerRegistryName": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Nome dell'Azure Container Registry (opzionale)"
-      }
-    },
-    "containerRegistryPassword": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Password dell'Azure Container Registry (opzionale)"
-      }
     }
   },
   "variables": {
@@ -63,8 +49,7 @@
       "application": "n8n",
       "environment": "production",
       "managed-by": "arm-template"
-    },
-    "useAcr": "[not(empty(parameters('containerRegistryName')))]"
+    }
   },
   "resources": [
     {
@@ -106,9 +91,11 @@
       "apiVersion": "2021-07-01",
       "name": "[variables('containerGroupName')]",
       "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('fileShareName'))]"
+      ],
       "tags": "[variables('tags')]",
       "properties": {
-        "imageRegistryCredentials": "[if(variables('useAcr'), json(concat('[{\"server\":\"', parameters('containerRegistryName'), '.azurecr.io\",\"username\":\"', parameters('containerRegistryName'), '\",\"password\":\"', parameters('containerRegistryPassword'), '\"}]')), json('[]'))]",
         "containers": [
           {
             "name": "n8n",
