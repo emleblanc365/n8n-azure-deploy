@@ -38,6 +38,20 @@
       "metadata": {
         "description": "Regione in cui distribuire le risorse."
       }
+    },
+    "dockerHubUsername": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Username Docker Hub per evitare rate limiting"
+      }
+    },
+    "dockerHubPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Password Docker Hub per evitare rate limiting"
+      }
     }
   },
   "variables": {
@@ -261,7 +275,14 @@
             }
           ]
         },
-        "restartPolicy": "OnFailure"
+        "restartPolicy": "OnFailure",
+        "imageRegistryCredentials": [
+          {
+            "server": "index.docker.io",
+            "username": "[parameters('dockerHubUsername')]",
+            "password": "[parameters('dockerHubPassword')]"
+          }
+        ]
       }
     }
   ]
