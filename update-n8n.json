@@ -43,7 +43,12 @@
     "fileShareName": "n8n-data",
     "containerGroupName": "[concat(parameters('baseName'), '-container-group')]",
     "dnsNameLabel": "[concat(parameters('baseName'), '-dns')]",
-    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
+    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]",
+    "tags": {
+      "application": "n8n",
+      "environment": "production",
+      "managed-by": "arm-template"
+    }
   },
   "resources": [
     {
@@ -51,6 +56,7 @@
       "apiVersion": "2021-07-01",
       "name": "[variables('containerGroupName')]",
       "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
       "properties": {
         "containers": [
           {
@@ -61,6 +67,10 @@
                 "requests": {
                   "cpu": 0.5,
                   "memoryInGB": 1
+                },
+                "limits": {
+                  "cpu": 1.0,
+                  "memoryInGB": 2
                 }
               },
               "environmentVariables": [
@@ -83,6 +93,18 @@
                 {
                   "name": "TZ",
                   "value": "Europe/Rome"
+                },
+                {
+                  "name": "N8N_PROTOCOL",
+                  "value": "https"
+                },
+                {
+                  "name": "N8N_HOST",
+                  "value": "[concat(variables('dnsNameLabel'), '.', parameters('location'), '.azurecontainer.io')]"
+                },
+                {
+                  "name": "NODE_ENV",
+                  "value": "production"
                 }
               ],
               "volumeMounts": [
@@ -96,6 +118,70 @@
                   "port": 5678,
                   "protocol": "TCP"
                 }
+              ],
+              "livenessProbe": {
+                "httpGet": {
+                  "path": "/",
+                  "port": 5678
+                },
+                "initialDelaySeconds": 30,
+                "periodSeconds": 30
+              },
+              "readinessProbe": {
+                "httpGet": {
+                  "path": "/",
+                  "port": 5678
+                },
+                "initialDelaySeconds": 15,
+                "periodSeconds": 10
+              }
+            }
+          },
+          {
+            "name": "caddy-ssl-server",
+            "properties": {
+              "image": "caddy:latest",
+              "command": [
+                "caddy",
+                "reverse-proxy",
+                "--from",
+                "[variables('dnsNameLabel')]",
+                "--to",
+                "localhost:5678",
+                "--header-up",
+                "X-Frame-Options \"SAMEORIGIN\"",
+                "--header-up",
+                "X-Content-Type-Options \"nosniff\"",
+                "--header-up",
+                "Referrer-Policy \"strict-origin-when-cross-origin\"",
+                "--header-up",
+                "Strict-Transport-Security \"max-age=31536000; includeSubDomains\""
+              ],
+              "ports": [
+                {
+                  "protocol": "TCP",
+                  "port": 443
+                },
+                {
+                  "protocol": "TCP",
+                  "port": 80
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "memoryInGB": 0.5,
+                  "cpu": 0.5
+                }
+              },
+              "volumeMounts": [
+                {
+                  "name": "data",
+                  "mountPath": "/data"
+                },
+                {
+                  "name": "config",
+                  "mountPath": "/config"
+                }
               ]
             }
           }
@@ -108,6 +194,14 @@
               "storageAccountName": "[variables('storageAccountName')]",
               "storageAccountKey": "[variables('storageAccountKey')]"
             }
+          },
+          {
+            "name": "data",
+            "emptyDir": {}
+          },
+          {
+            "name": "config",
+            "emptyDir": {}
           }
         ],
         "osType": "Linux",
@@ -115,6 +209,14 @@
           "type": "Public",
           "dnsNameLabel": "[variables('dnsNameLabel')]",
           "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP"
+            },
+            {
+              "port": 443,
+              "protocol": "TCP"
+            },
             {
               "port": 5678,
               "protocol": "TCP"
