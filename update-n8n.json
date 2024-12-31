@@ -1,0 +1,126 @@
+
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "type": "string",
+      "metadata": {
+        "description": "Nome base utilizzato per risorse come storage, file share e container group."
+      }
+    },
+    "n8nUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Nome utente per l'autenticazione di base (Basic Auth)."
+      }
+    },
+    "n8nPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password per l'autenticazione di base (Basic Auth)."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "westeurope",
+      "metadata": {
+        "description": "Regione in cui si trova il deployment."
+      }
+    },
+    "n8nImageVersion": {
+      "type": "string",
+      "defaultValue": "latest",
+      "metadata": {
+        "description": "Versione dell'immagine Docker di n8n (es. 'latest' o una specifica versione)."
+      }
+    }
+  },
+  "variables": {
+    "storageAccountName": "[concat(parameters('baseName'), 'storage')]",
+    "fileShareName": "n8n-data",
+    "containerGroupName": "[concat(parameters('baseName'), '-container-group')]",
+    "dnsNameLabel": "[concat(parameters('baseName'), '-dns')]",
+    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2021-07-01",
+      "name": "[variables('containerGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "containers": [
+          {
+            "name": "n8n",
+            "properties": {
+              "image": "[concat('n8nio/n8n:', parameters('n8nImageVersion'))]",
+              "resources": {
+                "requests": {
+                  "cpu": 0.5,
+                  "memoryInGB": 1
+                }
+              },
+              "environmentVariables": [
+                {
+                  "name": "N8N_BASIC_AUTH_ACTIVE",
+                  "value": "true"
+                },
+                {
+                  "name": "N8N_BASIC_AUTH_USER",
+                  "value": "[parameters('n8nUsername')]"
+                },
+                {
+                  "name": "N8N_BASIC_AUTH_PASSWORD",
+                  "secureValue": "[parameters('n8nPassword')]"
+                },
+                {
+                  "name": "GENERIC_TIMEZONE",
+                  "value": "Europe/Rome"
+                },
+                {
+                  "name": "TZ",
+                  "value": "Europe/Rome"
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "name": "n8n-data-volume",
+                  "mountPath": "/home/node/.n8n"
+                }
+              ],
+              "ports": [
+                {
+                  "port": 5678,
+                  "protocol": "TCP"
+                }
+              ]
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "name": "n8n-data-volume",
+            "azureFile": {
+              "shareName": "[variables('fileShareName')]",
+              "storageAccountName": "[variables('storageAccountName')]",
+              "storageAccountKey": "[variables('storageAccountKey')]"
+            }
+          }
+        ],
+        "osType": "Linux",
+        "ipAddress": {
+          "type": "Public",
+          "dnsNameLabel": "[variables('dnsNameLabel')]",
+          "ports": [
+            {
+              "port": 5678,
+              "protocol": "TCP"
+            }
+          ]
+        },
+        "restartPolicy": "OnFailure"
+      }
+    }
+  ]
+}
