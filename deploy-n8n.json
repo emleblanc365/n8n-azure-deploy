@@ -183,7 +183,7 @@
                 "caddy",
                 "reverse-proxy",
                 "--from",
-                "[variables('dnsNameLabel')]",
+                "[concat(variables('dnsNameLabel'), '.', parameters('location'), '.azurecontainer.io')]",
                 "--to",
                 "localhost:5678",
                 "--header-up",
