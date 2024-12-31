@@ -38,6 +38,20 @@
       "metadata": {
         "description": "Regione in cui distribuire le risorse."
       }
+    },
+    "containerRegistryName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Nome dell'Azure Container Registry (opzionale)"
+      }
+    },
+    "containerRegistryPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Password dell'Azure Container Registry (opzionale)"
+      }
     }
   },
   "variables": {
@@ -49,7 +63,8 @@
       "application": "n8n",
       "environment": "production",
       "managed-by": "arm-template"
-    }
+    },
+    "useAcr": "[not(empty(parameters('containerRegistryName')))]"
   },
   "resources": [
     {
@@ -93,11 +108,12 @@
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
       "properties": {
+        "imageRegistryCredentials": "[if(variables('useAcr'), json(concat('[{\"server\":\"', parameters('containerRegistryName'), '.azurecr.io\",\"username\":\"', parameters('containerRegistryName'), '\",\"password\":\"', parameters('containerRegistryPassword'), '\"}]')), json('[]'))]",
         "containers": [
           {
             "name": "n8n",
             "properties": {
-              "image": "n8nio/n8n:latest",
+              "image": "[if(variables('useAcr'), concat(parameters('containerRegistryName'), '.azurecr.io/n8n:latest'), 'n8nio/n8n:latest')]",
               "resources": {
                 "requests": {
                   "cpu": 0.5,
