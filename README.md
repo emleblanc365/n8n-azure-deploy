@@ -4,9 +4,15 @@ Questo repository contiene due template ARM per deployare e gestire n8n su Azure
 
 ## Deploy Rapido
 
+### Nuovo Deployment (Prima Installazione)
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdanilozito%2Fn8n-azure-deploy%2Fmain%2Fdeploy-n8n.json)
 
+Usa questo pulsante per la prima installazione di n8n. Creerà tutte le risorse necessarie incluso storage account e file share.
+
+### Aggiornamento Installazione Esistente
 [![Update in Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdanilozito%2Fn8n-azure-deploy%2Fmain%2Fupdate-n8n.json)
+
+Usa questo pulsante per aggiornare un'installazione esistente di n8n, per esempio per cambiare la versione dell'immagine o le credenziali.
 
 ## Configurazione Predefinita
 
