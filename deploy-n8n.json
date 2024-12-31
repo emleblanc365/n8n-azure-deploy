@@ -101,7 +101,7 @@
               "resources": {
                 "requests": {
                   "cpu": 0.5,
-                  "memoryInGB": 1
+                  "memoryInGB": 1.5
                 },
                 "limits": {
                   "cpu": 1.0,
