@@ -1,22 +1,24 @@
-
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "baseName": {
       "type": "string",
+      "defaultValue": "n8n",
       "metadata": {
         "description": "Nome base utilizzato per risorse come storage, file share e container group."
       }
     },
     "n8nUsername": {
       "type": "string",
+      "defaultValue": "admin",
       "metadata": {
         "description": "Nome utente per l'autenticazione di base (Basic Auth)."
       }
     },
     "n8nPassword": {
       "type": "securestring",
+      "defaultValue": "n8n-default-pwd",
       "metadata": {
         "description": "Password per l'autenticazione di base (Basic Auth)."
       }
