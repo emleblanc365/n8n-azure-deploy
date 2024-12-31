@@ -41,7 +41,7 @@
     }
   },
   "variables": {
-    "storageAccountName": "[concat(parameters('baseName'), 'storage')]",
+    "storageAccountName": "[toLower(concat(parameters('baseName'), uniqueString(resourceGroup().id), 'storage'))]",
     "fileShareName": "n8n-data",
     "containerGroupName": "[concat(parameters('baseName'), '-container-group')]",
     "dnsNameLabel": "[concat(parameters('baseName'), '-dns')]",
