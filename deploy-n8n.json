@@ -175,7 +175,7 @@
           {
             "name": "caddy-ssl-server",
             "properties": {
-              "image": "caddy:latest",
+              "image": "mcr.microsoft.com/oss/caddy/caddy:v2.7.6",
               "command": [
                 "caddy",
                 "reverse-proxy",
