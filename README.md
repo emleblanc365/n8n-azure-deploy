@@ -2,6 +2,11 @@
 
 Questo repository contiene due template ARM per deployare e gestire n8n su Azure Container Instances (ACI) con storage persistente usando Azure File Share.
 
+## Prerequisiti
+
+- **Account Azure** con una sottoscrizione attiva
+- **Account Docker Hub**: A causa dei limiti di rate di Docker Hub, è necessario [registrare un account gratuito](https://hub.docker.com/signup) per ottenere le credenziali di accesso. Questo eviterà errori durante il download delle immagini dei container.
+
 ## Componenti del Deployment
 
 - **n8n**: Container principale che esegue l'applicazione n8n
@@ -31,9 +36,13 @@ I template includono valori predefiniti per un deployment rapido:
 - `n8nPassword`: "n8n-default-pwd"
 - `location`: "westeurope"
 - `fileShareQuotaGB`: 5
+- `dockerHubUsername`: "" (inserire il proprio username Docker Hub)
+- `dockerHubPassword`: "" (inserire la propria password Docker Hub)
 - `n8nImageVersion`: "latest" (solo per update-n8n.json)
 
-⚠️ **IMPORTANTE**: Per un ambiente di produzione, si raccomanda vivamente di modificare questi valori, specialmente username e password.
+⚠️ **IMPORTANTE**: 
+- Per un ambiente di produzione, si raccomanda vivamente di modificare username e password di n8n
+- È necessario inserire le credenziali Docker Hub per evitare errori di rate limiting durante il deployment
 
 ## Caratteristiche di Sicurezza
 

@@ -197,17 +197,9 @@
                 "caddy",
                 "reverse-proxy",
                 "--from",
-                "[concat(variables('dnsNameLabel'), '.', parameters('location'), '.azurecontainer.io')]",
+                "${HOSTNAME}",
                 "--to",
-                "localhost:5678",
-                "--header-up",
-                "X-Frame-Options \"SAMEORIGIN\"",
-                "--header-up",
-                "X-Content-Type-Options \"nosniff\"",
-                "--header-up",
-                "Referrer-Policy \"strict-origin-when-cross-origin\"",
-                "--header-up",
-                "Strict-Transport-Security \"max-age=31536000; includeSubDomains\""
+                "localhost:5678"
               ],
               "ports": [
                 {
@@ -233,6 +225,12 @@
                 {
                   "name": "config",
                   "mountPath": "/config"
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "HOSTNAME",
+                  "value": "[concat(variables('dnsNameLabel'), '.', parameters('location'), '.azurecontainer.io')]"
                 }
               ]
             }
