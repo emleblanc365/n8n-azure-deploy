@@ -100,7 +100,7 @@
           {
             "name": "n8n",
             "properties": {
-              "image": "[if(variables('useAcr'), concat(parameters('containerRegistryName'), '.azurecr.io/n8n:latest'), 'n8nio/n8n:latest')]",
+              "image": "n8nio/n8n:latest",
               "resources": {
                 "requests": {
                   "cpu": 0.5,
@@ -178,7 +178,7 @@
           {
             "name": "caddy-ssl-server",
             "properties": {
-              "image": "mcr.microsoft.com/oss/caddy/caddy:v2.7.6",
+              "image": "caddy:latest",
               "command": [
                 "caddy",
                 "reverse-proxy",
