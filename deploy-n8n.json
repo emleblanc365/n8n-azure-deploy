@@ -45,7 +45,6 @@
     "fileShareName": "n8n-data",
     "containerGroupName": "[concat(parameters('baseName'), '-container-group')]",
     "dnsNameLabel": "[concat(parameters('baseName'), '-dns')]",
-    "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]",
     "tags": {
       "application": "n8n",
       "environment": "production",
@@ -228,7 +227,7 @@
             "azureFile": {
               "shareName": "[variables('fileShareName')]",
               "storageAccountName": "[variables('storageAccountName')]",
-              "storageAccountKey": "[variables('storageAccountKey')]"
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
             }
           },
           {
