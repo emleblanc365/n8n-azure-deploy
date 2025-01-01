@@ -32,16 +32,18 @@
         },
         "timeZone": {
             "type": "string",
+            "defaultValue": "Europe/Rome",
             "metadata": {
                 "description": "Timezone for n8n (e.g., Europe/Rome)"
             }
         },
         "fileShareQuotaGB": {
             "type": "int",
+            "defaultValue": 10,
             "minValue": 1,
             "maxValue": 5120,
             "metadata": {
-                "description": "Size in GB for the n8n data file share."
+                "description": "Size in GB for the n8n data file share (default: 10GB)."
             }
         }
     },

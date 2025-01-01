@@ -27,13 +27,11 @@ Il template richiede i seguenti parametri:
   - Deve iniziare con una lettera
   - Può contenere solo lettere minuscole, numeri e trattini
   - Sarà usato per l'URL: `<name>.<region>.azurecontainer.io`
-- `storagePrefix`: Prefisso per il nome dello storage account (max 10 caratteri)
-  - Valore predefinito: "n8n"
-  - Verrà combinato con una stringa univoca
-- `n8nUsername`: Username per l'autenticazione di n8n
-- `n8nPassword`: Password per l'autenticazione di n8n
-- `timeZone`: Timezone per n8n (es: "Europe/Rome")
-- `fileShareQuotaGB`: Dimensione in GB del file share per i dati (1-5120)
+- `storagePrefix`: Prefisso per il nome dello storage account (max 10 caratteri, default: "n8n")
+- `n8nUsername`: Username per l'autenticazione di n8n (obbligatorio)
+- `n8nPassword`: Password per l'autenticazione di n8n (obbligatorio)
+- `timeZone`: Timezone per n8n (default: "Europe/Rome")
+- `fileShareQuotaGB`: Dimensione in GB del file share per i dati (1-5120, default: 5)
 
 ⚠️ **Note sui nomi**:
 - Il nome del deployment (`name`) deve essere lungo almeno 5 caratteri per soddisfare i requisiti DNS di Azure
@@ -52,11 +50,10 @@ Il template richiede i seguenti parametri:
 ### Tramite Portal Azure
 1. Clicca sul pulsante "Deploy to Azure" sopra
 2. Compila i parametri nel form che appare:
-   - Seleziona o crea un nuovo Resource Group
+   - Seleziona la subscription e il resource group
    - Inserisci un nome valido per il deployment (min 5 caratteri)
-   - Configura username e password per l'accesso a n8n
-   - Imposta il timezone desiderato
-   - Configura la dimensione del file share se necessario
+   - **Importante**: Configura username e password per l'accesso a n8n
+   - Opzionalmente modifica gli altri parametri (timezone, dimensione file share)
 3. Rivedi e crea il deployment
 
 ### Tramite CLI Azure
@@ -67,11 +64,8 @@ az deployment group create \
   --template-file deploy-n8n.json \
   --parameters \
       name=<NAME> \
-      storagePrefix=<STORAGE_PREFIX> \
       n8nUsername=<USERNAME> \
-      n8nPassword=<PASSWORD> \
-      timeZone=<TIMEZONE> \
-      fileShareQuotaGB=<QUOTA_GB>
+      n8nPassword=<PASSWORD>
 ```
 
 ## Accesso all'Applicazione
