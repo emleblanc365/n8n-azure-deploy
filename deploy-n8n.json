@@ -63,7 +63,8 @@
       "application": "n8n",
       "environment": "production",
       "managed-by": "arm-template"
-    }
+    },
+    "caddyShareName": "caddy-data"
   },
   "resources": [
     {
@@ -101,12 +102,24 @@
       }
     },
     {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('caddyShareName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "shareQuota": 5
+      }
+    },
+    {
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2021-07-01",
       "name": "[variables('containerGroupName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('fileShareName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('fileShareName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('caddyShareName'))]"
       ],
       "tags": "[variables('tags')]",
       "properties": {
@@ -192,12 +205,12 @@
           {
             "name": "caddy-ssl-server",
             "properties": {
-              "image": "caddy:latest",
+              "image": "docker.io/caddy:2.6.2-alpine",
               "command": [
                 "caddy",
                 "reverse-proxy",
                 "--from",
-                "${HOSTNAME}",
+                "[concat(variables('dnsNameLabel'), '.', parameters('location'), '.azurecontainer.io')]",
                 "--to",
                 "localhost:5678"
               ],
@@ -219,18 +232,8 @@
               },
               "volumeMounts": [
                 {
-                  "name": "data",
+                  "name": "caddy-data",
                   "mountPath": "/data"
-                },
-                {
-                  "name": "config",
-                  "mountPath": "/config"
-                }
-              ],
-              "environmentVariables": [
-                {
-                  "name": "HOSTNAME",
-                  "value": "[concat(variables('dnsNameLabel'), '.', parameters('location'), '.azurecontainer.io')]"
                 }
               ]
             }
@@ -246,12 +249,12 @@
             }
           },
           {
-            "name": "data",
-            "emptyDir": {}
-          },
-          {
-            "name": "config",
-            "emptyDir": {}
+            "name": "caddy-data",
+            "azureFile": {
+              "shareName": "[variables('caddyShareName')]",
+              "storageAccountName": "[variables('storageAccountName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
+            }
           }
         ],
         "osType": "Linux",
@@ -273,7 +276,7 @@
             }
           ]
         },
-        "restartPolicy": "OnFailure",
+        "restartPolicy": "Always",
         "imageRegistryCredentials": [
           {
             "server": "index.docker.io",
