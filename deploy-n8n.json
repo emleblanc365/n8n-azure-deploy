@@ -11,13 +11,13 @@
         "n8nUsername": {
             "type": "string",
             "metadata": {
-                "description": "Name of the n8n admin user."
+                "description": "Username for n8n basic authentication. This will be required to access n8n."
             }
         },
         "n8nPassword": {
             "type": "securestring",
             "metadata": {
-                "description": "Password of the n8n admin user."
+                "description": "Password for n8n basic authentication. This will be required to access n8n."
             }
         },
         "timeZone": {
