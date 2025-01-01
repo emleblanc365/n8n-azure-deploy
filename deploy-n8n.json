@@ -63,8 +63,7 @@
       "application": "n8n",
       "environment": "production",
       "managed-by": "arm-template"
-    },
-    "caddyShareName": "caddy-data"
+    }
   },
   "resources": [
     {
@@ -102,24 +101,12 @@
       }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-      "apiVersion": "2019-06-01",
-      "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('caddyShareName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-      ],
-      "properties": {
-        "shareQuota": 5
-      }
-    },
-    {
       "type": "Microsoft.ContainerInstance/containerGroups",
       "apiVersion": "2021-07-01",
       "name": "[variables('containerGroupName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('fileShareName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('caddyShareName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', variables('storageAccountName'), 'default', variables('fileShareName'))]"
       ],
       "tags": "[variables('tags')]",
       "properties": {
@@ -229,13 +216,7 @@
                   "memoryInGB": 0.5,
                   "cpu": 0.5
                 }
-              },
-              "volumeMounts": [
-                {
-                  "name": "caddy-data",
-                  "mountPath": "/data"
-                }
-              ]
+              }
             }
           }
         ],
@@ -244,14 +225,6 @@
             "name": "n8n-data-volume",
             "azureFile": {
               "shareName": "[variables('fileShareName')]",
-              "storageAccountName": "[variables('storageAccountName')]",
-              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
-            }
-          },
-          {
-            "name": "caddy-data",
-            "azureFile": {
-              "shareName": "[variables('caddyShareName')]",
               "storageAccountName": "[variables('storageAccountName')]",
               "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value]"
             }

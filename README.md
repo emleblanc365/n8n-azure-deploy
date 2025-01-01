@@ -1,6 +1,6 @@
-# n8n Azure Deployment Templates
+# n8n Azure Deployment Template
 
-Questo repository contiene due template ARM per deployare e gestire n8n su Azure Container Instances (ACI) con storage persistente usando Azure File Share.
+Questo template ARM permette di deployare n8n su Azure Container Instances (ACI) con storage persistente usando Azure File Share.
 
 ## Prerequisiti
 
@@ -14,22 +14,15 @@ Questo repository contiene due template ARM per deployare e gestire n8n su Azure
   - Gestione automatica dei certificati SSL/TLS
   - Routing HTTPS sicuro
   - Reindirizzamento automatico HTTP a HTTPS
+- **Storage Persistente**: Azure File Share per il database SQLite di n8n
 
 ## Deploy Rapido
 
-### Nuovo Deployment (Prima Installazione)
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdanilozito%2Fn8n-azure-deploy%2Fmain%2Fdeploy-n8n.json)
-
-Usa questo pulsante per la prima installazione di n8n. Creerà tutte le risorse necessarie incluso storage account e file share.
-
-### Aggiornamento Installazione Esistente
-[![Update in Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdanilozito%2Fn8n-azure-deploy%2Fmain%2Fupdate-n8n.json)
-
-Usa questo pulsante per aggiornare un'installazione esistente di n8n, per esempio per cambiare la versione dell'immagine o le credenziali.
 
 ## Configurazione Predefinita
 
-I template includono valori predefiniti per un deployment rapido:
+Il template include valori predefiniti per un deployment rapido:
 
 - `baseName`: "n8n"
 - `n8nUsername`: "admin"
@@ -38,15 +31,15 @@ I template includono valori predefiniti per un deployment rapido:
 - `fileShareQuotaGB`: 5
 - `dockerHubUsername`: "" (inserire il proprio username Docker Hub)
 - `dockerHubPassword`: "" (inserire la propria password Docker Hub)
-- `n8nImageVersion`: "latest" (solo per update-n8n.json)
 
 ⚠️ **IMPORTANTE**: 
 - Per un ambiente di produzione, si raccomanda vivamente di modificare username e password di n8n
 - È necessario inserire le credenziali Docker Hub per evitare errori di rate limiting durante il deployment
+- I dati di n8n vengono persistiti nell'Azure File Share, assicurandosi che nessun dato venga perso in caso di restart del container
 
 ## Caratteristiche di Sicurezza
 
-I template implementano diverse misure di sicurezza:
+Il template implementa diverse misure di sicurezza:
 
 - **Storage Account**:
   - TLS 1.2 forzato
@@ -56,23 +49,24 @@ I template implementano diverse misure di sicurezza:
 - **Container**:
   - Resource limits configurati
   - Health probes per il monitoring
-  - Headers di sicurezza HTTP configurati
+  - Autenticazione basic auth abilitata
 
 - **Caddy**:
   - Gestione automatica SSL/TLS
-  - Security headers (HSTS, X-Frame-Options, etc.)
   - Redirect HTTP a HTTPS
 
 ## Personalizzazione dei Parametri
 
 ### Tramite Portal Azure
 1. Clicca sul pulsante "Deploy to Azure" sopra
-2. Compila i parametri nel form che appare
+2. Compila i parametri nel form che appare:
+   - Seleziona o crea un nuovo Resource Group
+   - Inserisci le credenziali Docker Hub
+   - Modifica gli altri parametri se necessario
 3. Rivedi e crea il deployment
 
 ### Tramite CLI Azure
 
-#### Nuovo Deployment
 ```bash
 az deployment group create \
   --resource-group <RESOURCE_GROUP_NAME> \
@@ -81,40 +75,10 @@ az deployment group create \
       baseName=<BASE_NAME> \
       n8nUsername=<USERNAME> \
       n8nPassword=<PASSWORD> \
-      location=<LOCATION>
-```
-
-#### Aggiornamento
-```bash
-az deployment group create \
-  --resource-group <RESOURCE_GROUP_NAME> \
-  --template-file update-n8n.json \
-  --parameters \
-      baseName=<BASE_NAME> \
-      n8nUsername=<USERNAME> \
-      n8nPassword=<PASSWORD> \
       location=<LOCATION> \
-      n8nImageVersion=<VERSION>
+      dockerHubUsername=<DOCKER_USERNAME> \
+      dockerHubPassword=<DOCKER_PASSWORD>
 ```
-
-## Architettura del Deployment
-
-Il deployment crea:
-1. Un container group con due container:
-   - **n8n**: Espone l'applicazione sulla porta 5678
-   - **Caddy**: Gestisce il traffico HTTPS e i certificati SSL
-2. Storage persistente per i dati di n8n
-3. Configurazione di rete con DNS pubblico
-
-## Note sulla Sicurezza
-
-- Cambiare sempre le credenziali predefinite prima del deployment in produzione
-- Utilizzare password complesse per l'autenticazione
-- Il traffico HTTPS è gestito automaticamente da Caddy
-- Considerare l'implementazione di misure di sicurezza aggiuntive come:
-  - Restrizioni IP
-  - VNet integration
-  - Managed identities
 
 ## Accesso all'Applicazione
 
@@ -122,11 +86,10 @@ Dopo il deployment, n8n sarà accessibile all'indirizzo:
 ```
 https://<baseName>-dns.<location>.azurecontainer.io
 ```
-L'accesso HTTPS è configurato automaticamente da Caddy.
 
 ## Troubleshooting
 
 - Se il container non si avvia, controllare i log nel portal Azure
+- Verificare che le credenziali Docker Hub siano corrette
+- Controllare che le credenziali di autenticazione n8n siano corrette
 - Verificare che il storage account sia accessibile
-- Controllare che le credenziali di autenticazione siano corrette
-- Per problemi SSL, verificare i log del container Caddy
