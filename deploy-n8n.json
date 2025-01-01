@@ -4,8 +4,18 @@
     "parameters": {
         "name": {
             "type": "string",
+            "minLength": 5,
+            "maxLength": 63,
             "metadata": {
-                "description": "n8n will be available at this address: <dnsNameLabel>.<region>.azurecontainer.io"
+                "description": "Name for the deployment. Must be between 5 and 63 characters, start with a letter, and contain only lowercase letters, numbers, and hyphens."
+            }
+        },
+        "storagePrefix": {
+            "type": "string",
+            "defaultValue": "n8n",
+            "maxLength": 10,
+            "metadata": {
+                "description": "Prefix for the storage account name (max 10 chars). Will be combined with a unique string."
             }
         },
         "n8nUsername": {
@@ -22,11 +32,12 @@
         },
         "timeZone": {
             "type": "string",
-            "defaultValue": "Europe/Rome"
+            "metadata": {
+                "description": "Timezone for n8n (e.g., Europe/Rome)"
+            }
         },
         "fileShareQuotaGB": {
             "type": "int",
-            "defaultValue": 5,
             "minValue": 1,
             "maxValue": 5120,
             "metadata": {
@@ -36,7 +47,7 @@
     },
     "variables": {
         "fqdn": "[format('{0}.{1}.azurecontainer.io', parameters('name'), toLower(replace(resourceGroup().location, ' ', '')))]",
-        "storageAccountName": "[toLower(concat(parameters('name'), uniqueString(resourceGroup().id), 'storage'))]",
+        "storageAccountName": "[toLower(concat(parameters('storagePrefix'), uniqueString(resourceGroup().id)))]",
         "fileShareName": "n8n-data"
     },
     "resources": [

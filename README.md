@@ -23,11 +23,21 @@ Questo template ARM permette di deployare n8n su Azure Container Instances (ACI)
 
 Il template richiede i seguenti parametri:
 
-- `name`: Nome del deployment (sarà usato per l'URL: `<name>.<region>.azurecontainer.io`)
+- `name`: Nome del deployment (5-63 caratteri)
+  - Deve iniziare con una lettera
+  - Può contenere solo lettere minuscole, numeri e trattini
+  - Sarà usato per l'URL: `<name>.<region>.azurecontainer.io`
+- `storagePrefix`: Prefisso per il nome dello storage account (max 10 caratteri)
+  - Valore predefinito: "n8n"
+  - Verrà combinato con una stringa univoca
 - `n8nUsername`: Username per l'autenticazione di n8n
 - `n8nPassword`: Password per l'autenticazione di n8n
-- `timeZone`: Timezone per n8n (default: "Europe/Rome")
-- `fileShareQuotaGB`: Dimensione in GB del file share per i dati (default: 5)
+- `timeZone`: Timezone per n8n (es: "Europe/Rome")
+- `fileShareQuotaGB`: Dimensione in GB del file share per i dati (1-5120)
+
+⚠️ **Note sui nomi**:
+- Il nome del deployment (`name`) deve essere lungo almeno 5 caratteri per soddisfare i requisiti DNS di Azure
+- Il prefisso dello storage (`storagePrefix`) viene combinato con una stringa univoca per creare un nome storage account valido
 
 ## Caratteristiche
 
@@ -43,8 +53,9 @@ Il template richiede i seguenti parametri:
 1. Clicca sul pulsante "Deploy to Azure" sopra
 2. Compila i parametri nel form che appare:
    - Seleziona o crea un nuovo Resource Group
-   - Inserisci nome, username e password
-   - Modifica il timezone se necessario
+   - Inserisci un nome valido per il deployment (min 5 caratteri)
+   - Configura username e password per l'accesso a n8n
+   - Imposta il timezone desiderato
    - Configura la dimensione del file share se necessario
 3. Rivedi e crea il deployment
 
@@ -56,6 +67,7 @@ az deployment group create \
   --template-file deploy-n8n.json \
   --parameters \
       name=<NAME> \
+      storagePrefix=<STORAGE_PREFIX> \
       n8nUsername=<USERNAME> \
       n8nPassword=<PASSWORD> \
       timeZone=<TIMEZONE> \
@@ -75,3 +87,7 @@ https://<name>.<region>.azurecontainer.io
 - Verificare che le credenziali di autenticazione siano corrette
 - Verificare che il file share sia stato creato correttamente
 - Per problemi SSL, verificare i log del container Caddy
+- Se il deployment fallisce per errori di nome:
+  - Assicurarsi che il nome del deployment sia almeno 5 caratteri
+  - Usare solo lettere minuscole, numeri e trattini
+  - Il nome deve iniziare con una lettera
