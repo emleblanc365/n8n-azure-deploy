@@ -126,6 +126,22 @@
                                 {
                                     "name": "N8N_BASIC_AUTH_PASSWORD",
                                     "secureValue": "[parameters('n8nPassword')]"
+                                },
+                                {
+                                    "name": "N8N_HOST",
+                                    "value": "[variables('fqdn')]"
+                                },
+                                {
+                                    "name": "N8N_PORT",
+                                    "value": "5678"
+                                },
+                                {
+                                    "name": "N8N_PROTOCOL",
+                                    "value": "https"
+                                },
+                                {
+                                    "name": "WEBHOOK_URL",
+                                    "value": "[concat('https://', variables('fqdn'))]"
                                 }
                             ],
                             "volumeMounts": [
