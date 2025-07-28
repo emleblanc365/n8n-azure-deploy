@@ -18,7 +18,7 @@ Questo template ARM permette di deployare n8n su Azure Container Instances (ACI)
 
 ## Deploy Rapido
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdanilozito%2Fn8n-azure-deploy%2Fmain%2Fdeploy-n8n.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Femleblanc365%2Fn8n-azure-deploy%2Fmain%2Fdeploy-n8n.json)
 
 ## Deploy tramite Azure CLI
 
